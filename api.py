@@ -29,7 +29,7 @@ def upgrade():
     if cookie.num >= cookie.cost:
         cookie.num -= cookie.cost
         label.config(text=cookie.num)
-        cookie.cost = cookie.cost 
+        cookie.cost = cookie.cost * 2
         cookie.production += 1
         
 button = tk.Button(root, text="Click Me", command=on_button_click, width = 20, height= 10)
