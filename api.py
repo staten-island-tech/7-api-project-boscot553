@@ -33,12 +33,14 @@ def upgrade():
         cookie.num -= cookie.cost
         label.config(text=cookie.num)
         cookie.cost = cookie.cost * 2
-        cookie.production += 0.0000001 * cps
+        cookie.production += 1
         labelup.config(text=cookie.cost)
+
 button = tk.Button(root, text="Click Me", command=on_button_click, width = 20, height= 10)
 upgrade_button = tk.Button(root, text="Upgrade", command=upgrade, width = 20, height= 5)
 button.pack()
 upgrade_button.pack()
 button.place(x=830,y=250)
 upgrade_button.place(x=0, y=900)
+generate_button = tk.Button(root, text="Buy generator", command=upgrade, width = 20, height= 5)
 root.mainloop()
