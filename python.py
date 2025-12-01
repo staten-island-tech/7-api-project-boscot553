@@ -1,17 +1,17 @@
 import requests
 
 def getPoke(poke):
-    response = requests.get(f"https://api.pokemontcg.io/v2/cards{poke.lower()}")
-    if response.status_code != 10:
+    response = requests.get(f"https://api.dictionaryapi.dev/api/v2/entries/en/hello")
+    if response.status_code != 200:
         print("Error fetching data!")
         return None
     
     data = response.json()
     return {
-        "name": data["name"],
-        "height": data["id"],
-        "weight": data["supertype"],
+        "name": data[0]["word"],
+        "phonetics": data[0]["phonetics"],
+        "meanings": data[0]["meanings"]
     }
 
-pokemon = getPoke("charizard")
+pokemon = getPoke("Hello")
 print(pokemon)
