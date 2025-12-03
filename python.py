@@ -9,7 +9,7 @@ def do_search():
     
 def change_text():
     label.config(text="New text!")
-    label.pack_configure
+    
 
 root = tk.Tk()
 root.title("Dictionary")
@@ -18,11 +18,11 @@ label = tk.Label(root, text="Welcome to dictionary! ")
 label.pack(pady=20)
 label.place(x=700, y=150)
 label.config(font=("Verdana", 30))
+Output = tk.Label(root, text="Defintion ")
+Output.place(x=750, y=350)
+Output.config(font=("Verdana", 15))
+Output.place_forget()
 
-output = tk.Label(root, text="")
-output.pack(pady=20)
-output.place(x=700, y=400)
-output.config(font=("Verdana", 30))
 search_var = tk.StringVar()
 
 entry = tk.Entry(root, width=40, textvariable=search_var, font=('Arial', 12))
