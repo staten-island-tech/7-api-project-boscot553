@@ -18,17 +18,30 @@ def getWord(words):
     
     data = response.json()
     word = (f"Word:", data[0]["word"])
-    for i in data[0]["meanings"]:
-        num += 1
-    definition = (f"Definition(s):", data[0]["meanings"][num]["definitions"][0]["definition"])
-    synonyms = (f"Synonyms:", data[0]["meanings"][0]["synonyms"])
+    definition = (f"Definition(1):", data[0]["meanings"][0]["definitions"][0]["definition"])
+    try:
+        definition1 = (f"Definition(2):", data[0]["meanings"][1]["definitions"][0]["definition"])
+        definition2 = (f"Definition(3):", data[0]["meanings"][2]["definitions"][0]["definition"])
+    except IndexError:
+        print("Key 'model' does not exist.")
+    synonyms = data[0]["meanings"][0]["synonyms"]
     Output.config(text=word)
     Output.place(x=350, y=350)
     Output1.config(text=definition)
     Output1.place(x=350, y=385)
-    Output2.config(text=synonyms)
-    Output2.place(x=350, y=445)
-
+    try:
+        Output2.config(text=definition1)
+        Output2.place(x=350, y=405)
+    except UnboundLocalError:
+        print("Out of bounds.")
+    try:
+        Output3.config(text=definition2)
+        Output3.place(x=350, y=425)
+    except UnboundLocalError:
+        print("Out of bounds.")
+    cin = (f"Synonyms: {synonyms}")
+    Output4.config(text=cin)
+    Output4.place(x=350, y=455)
 root = tk.Tk()
 root.title("Dictionary")
 root.geometry("3000x1250")
@@ -52,7 +65,10 @@ Output3 = tk.Label(root, text="Defintion ")
 Output3.place(x=750, y=350)
 Output3.config(font=("Verdana", 10))
 Output3.place_forget()
-
+Output4 = tk.Label(root, text="Defintion ")
+Output4.place(x=750, y=350)
+Output4.config(font=("Verdana", 10))
+Output4.place_forget()
 search_var = tk.StringVar()
 
 entry = tk.Entry(root, width=40, textvariable=search_var, font=('Arial', 12))
