@@ -10,15 +10,19 @@ def change_text():
     label.config(text="New text!")
     
 def getWord(words):
-    num = -1
     response = requests.get(f"https://api.dictionaryapi.dev/api/v2/entries/en/{query}")
     if response.status_code != 200:
         print("Error fetching data!")
+        Error.config(text="Oops! This word does not exist currently")
+        Error.place(x=760, y=400)
         return None
     
     data = response.json()
     word = (f"Word:", data[0]["word"])
     definition = (f"Definition(1):", data[0]["meanings"][0]["definitions"][0]["definition"])
+    ant = (f"Antonyms:", data[0]["meanings"][0]["antonyms"])
+    partospeech = "PartOfSpeech:", data[0]["meanings"][0]["partOfSpeech"]
+    ex = "Example:", data[0]["meanings"][0]["definitions"][0]["example"]
     try:
         definition1 = (f"Definition(2):", data[0]["meanings"][1]["definitions"][0]["definition"])
         definition2 = (f"Definition(3):", data[0]["meanings"][2]["definitions"][0]["definition"])
@@ -42,6 +46,12 @@ def getWord(words):
     cin = (f"Synonyms: {synonyms}")
     Output4.config(text=cin)
     Output4.place(x=300, y=455)
+    Output5.config(text=ant)
+    Output5.place(x=300, y=475)
+    Output6.config(text=partospeech)
+    Output6.place(x=300, y=500)
+    Output7.config(text=ex)
+    Output7.place(x=300, y=525)
 root = tk.Tk()
 root.title("Dictionary")
 root.geometry("3000x1250")
@@ -69,8 +79,22 @@ Output4 = tk.Label(root, text="Defintion ")
 Output4.place(x=750, y=350)
 Output4.config(font=("Verdana", 10))
 Output4.place_forget()
-
-
+Output5 = tk.Label(root, text="Defintion ")
+Output5.place(x=750, y=350)
+Output5.config(font=("Verdana", 10))
+Output5.place_forget()
+Output6 = tk.Label(root, text="Defintion ")
+Output6.place(x=750, y=350)
+Output6.config(font=("Verdana", 10))
+Output6.place_forget()
+Output7 = tk.Label(root, text="Defintion ")
+Output7.place(x=750, y=350)
+Output7.config(font=("Verdana", 10))
+Output7.place_forget()
+Error = tk.Label(root, text="Defintion ")
+Error.place(x=0, y=250)
+Error.config(font=("Verdana", 30, wraplength=750))
+Error.place_forget()
 def slider_changed(value):
     print("Value:", value)
 
@@ -88,7 +112,7 @@ slider = tk.Scale(
     command=slider_changed
 )
 slider.place_forget()
-slider.place(x=0, y=0)
+
 search_var = tk.StringVar()
 
 entry = tk.Entry(root, width=40, textvariable=search_var, font=('Arial', 12))
