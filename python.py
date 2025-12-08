@@ -30,7 +30,12 @@ def getWord(words):
     definition = (f"Definition(1):", data[0]["meanings"][0]["definitions"][0]["definition"])
     ant = (f"Antonyms:", data[0]["meanings"][0]["antonyms"])
     partospeech = "PartOfSpeech:", data[0]["meanings"][0]["partOfSpeech"]
-    ex = "Example:", data[0]["meanings"][0]["definitions"][0]["example"]
+    definition1 = ""
+    definition2 = ""
+    try:
+        ex = "Example:", data[0]["meanings"][0]["definitions"][0]["example"]
+    except KeyError:
+        ex = "N/A"
     try:
         definition1 = (f"Definition(2):", data[0]["meanings"][1]["definitions"][0]["definition"])
         definition2 = (f"Definition(3):", data[0]["meanings"][2]["definitions"][0]["definition"])
@@ -63,7 +68,9 @@ def getWord(words):
     Error.place_forget()
 root = tk.Tk()
 root.title("Dictionary")
-root.geometry("3000x1250")
+root.geometry("1900x1500")
+
+
 label = tk.Label(root, text="Welcome to dictionary! ")
 label.pack(pady=20)
 label.place(x=700, y=150)
@@ -104,23 +111,8 @@ Error = tk.Label(root, text="Defintion ")
 Error.place(x=0, y=250)
 Error.config(font=("Verdana", 30))
 Error.place_forget()
-def slider_changed(value):
-    print("Value:", value)
 
-slider = tk.Scale(
-    root,
-    from_=0,
-    to=100,
-    orient=tk.HORIZONTAL,
-    length=300,
-    sliderlength=20,
-    tickinterval=10,
-    resolution=5,
-    label="Volume",
-    showvalue=True,
-    command=slider_changed
-)
-slider.place_forget()
+
 
 search_var = tk.StringVar()
 
@@ -131,5 +123,8 @@ button = tk.Button(root, text="Search", command=do_search)
 button.pack(side="left", padx=5)
 button.place(x=725, y= 300)
 entry.place(x=775, y=300)
+
+
+
 root.mainloop()
 
