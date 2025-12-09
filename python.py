@@ -1,5 +1,8 @@
 import requests
 import tkinter as tk
+from PIL import Image, ImageTk
+
+
 def do_search():
     global query
     query = search_var.get()
@@ -28,7 +31,7 @@ def getWord(words):
     data = response.json()
     word = (f"Word:", data[0]["word"])
     definition = (f"Definition(1):", data[0]["meanings"][0]["definitions"][0]["definition"])
-    ant = (f"Antonyms:", data[0]["meanings"][0]["antonyms"])
+    phonetics = (f"Phonetics:", data[0]["phonetics"])
     partospeech = "PartOfSpeech:", data[0]["meanings"][0]["partOfSpeech"]
     definition1 = ""
     definition2 = ""
@@ -59,12 +62,12 @@ def getWord(words):
     cin = (f"Synonyms: {synonyms}")
     Output4.config(text=cin)
     Output4.place(x=300, y=455)
-    Output5.config(text=ant)
-    Output5.place(x=300, y=475)
+    Output5.config(text=phonetics)
+    Output5.place(x=300, y=525)
     Output6.config(text=partospeech)
-    Output6.place(x=300, y=500)
+    Output6.place(x=300, y=475)
     Output7.config(text=ex)
-    Output7.place(x=300, y=525)
+    Output7.place(x=300, y=500)
     Error.place_forget()
 root = tk.Tk()
 root.title("Dictionary")
@@ -95,11 +98,11 @@ Output4 = tk.Label(root, text="Defintion ")
 Output4.place(x=750, y=350)
 Output4.config(font=("Verdana", 10))
 Output4.place_forget()
-Output5 = tk.Label(root, text="Defintion ")
+Output5 = tk.Label(root, text="Defintion", wraplength=1500)
 Output5.place(x=750, y=350)
 Output5.config(font=("Verdana", 10))
 Output5.place_forget()
-Output6 = tk.Label(root, text="Defintion ")
+Output6 = tk.Label(root, text="Defintion")
 Output6.place(x=750, y=350)
 Output6.config(font=("Verdana", 10))
 Output6.place_forget()
@@ -112,7 +115,12 @@ Error.place(x=0, y=250)
 Error.config(font=("Verdana", 30))
 Error.place_forget()
 
+image = Image.open("https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Banana-Single.jpg/1162px-Banana-Single.jpg")  
+photo = ImageTk.PhotoImage(image)
 
+
+k = tk.Label(root, image=photo)
+k.pack()
 
 search_var = tk.StringVar()
 
@@ -123,7 +131,6 @@ button = tk.Button(root, text="Search", command=do_search)
 button.pack(side="left", padx=5)
 button.place(x=725, y= 300)
 entry.place(x=775, y=300)
-
 
 
 root.mainloop()
