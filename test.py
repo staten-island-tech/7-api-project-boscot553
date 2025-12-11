@@ -1,10 +1,13 @@
+import cv2
+import numpy as np
 import requests
-from PIL import Image
-from io import BytesIO
 
 url = "https://upload.wikimedia.org/wikipedia/commons/0/02/Websters_Dictionary.jpg"
 
-response = requests.get(url)
-img = Image.open(BytesIO(response.content))
+resp = requests.get(url)
+img_array = np.asarray(bytearray(resp.content), dtype=np.uint8)
+img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
 
-img.show()
+cv2.imshow("Dictionary", img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
