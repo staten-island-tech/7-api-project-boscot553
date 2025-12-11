@@ -1,87 +1,62 @@
-import requests
 import tkinter as tk
-def do_search():
-    global query
-    query = search_var.get()
-    print("Searching for:", query)
-    getWord(query)
-    
-def change_text():
-    label.config(text="New text!")
-    
-def getWord(words):
-    num = -1
-    response = requests.get(f"https://api.dictionaryapi.dev/api/v2/entries/en/{query}")
-    if response.status_code != 200:
-        print("Error fetching data!")
-        return None
-    
-    data = response.json()
-    word = (f"Word:", data[0]["word"])
-    definition = (f"Definition(1):", data[0]["meanings"][0]["definitions"][0]["definition"])
-    try:
-        definition1 = (f"Definition(2):", data[0]["meanings"][1]["definitions"][0]["definition"])
-        definition2 = (f"Definition(3):", data[0]["meanings"][2]["definitions"][0]["definition"])
-    except IndexError:
-        print("Key 'model' does not exist.")
-    synonyms = data[0]["meanings"][0]["synonyms"]
-    Output.config(text=word)
-    Output.place(x=300, y=350)
-    Output1.config(text=definition)
-    Output1.place(x=300, y=385)
-    try:
-        Output2.config(text=definition1)
-        Output2.place(x=300, y=405)
-    except UnboundLocalError:
-        print("Out of bounds.")
-    try:
-        Output3.config(text=definition2)
-        Output3.place(x=300, y=425)
-    except UnboundLocalError:
-        print("Out of bounds.")
-    cin = (f"Synonyms: {synonyms}")
-    Output4.config(text=cin)
-    Output4.place(x=300, y=455)
+import random
+global spawn_particles
+# Setup window
 root = tk.Tk()
-root.title("Dictionary")
-root.geometry("3000x1250")
-label = tk.Label(root, text="Welcome to dictionary! ")
-label.pack(pady=20)
-label.place(x=700, y=150)
-label.config(font=("Verdana", 30))
-Output = tk.Label(root, text="Defintion", wraplength=1000, justify=tk.LEFT, bg="blue")
-Output.place(x=750, y=350)
-Output.config(font=("Verdana", 15))
-Output.place_forget()
-Output1 = tk.Label(root, text="Defintion", wraplength=1600)
-Output1.place(x=750, y=350)
-Output1.config(font=("Verdana", 10))
-Output1.place_forget()
-Output2 = tk.Label(root, text="Defintion", wraplength=1600)
-Output2.place(x=750, y=350)
-Output2.config(font=("Verdana", 10))
-Output2.place_forget()
-Output3 = tk.Label(root, text="Defintion ")
-Output3.place(x=750, y=350)
-Output3.config(font=("Verdana", 10))
-Output3.place_forget()
-Output4 = tk.Label(root, text="Defintion ")
-Output4.place(x=750, y=350)
-Output4.config(font=("Verdana", 10))
-Output4.place_forget()
-search_var = tk.StringVar()
+root.title("Particle Effects")
+canvas = tk.Canvas(root, width=1500, height=1500, bg="black")
+canvas.pack()
 
-entry = tk.Entry(root, width=40, textvariable=search_var, font=('Arial', 12))
-entry.pack(side="left", padx=5, pady=10)
+particles = []  # Store all particles
 
-button = tk.Button(root, text="Search", command=do_search)
-button.pack(side="left", padx=5)
-button.place(x=725, y= 300)
-entry.place(x=775, y=300)
+def create_particle():
+    # Random starting position in the middle
+    x = 670
+    y = 400
+
+    # Random size and color
+    size = random.randint(4, 20)
+    color = random.choice(["yellow", "orange", "white", "cyan", "magenta"])
+
+    # Create the particle (a small circle)
+    particle_id = canvas.create_oval(x, y, x + size, y + size, fill=color, outline="")
+
+    # Particle dictionary
+    particle = {
+        "id": particle_id,
+        "dx": random.uniform(-10, 10),   # horizontal movement
+        "dy": random.uniform(-10, 10), # upward/wind movement
+        "life": random.randint(40, 100) # frames before disappearing
+    }
+
+    particles.append(particle)
+
+def stop_spawning():
+    spawn_particles = False
+    print("Particle spawning stopped!")
+
+def update_particles():
+    # Update and remove dead particles
+    for p in particles[:]:
+        canvas.move(p["id"], p["dx"], p["dy"])
+        p["dy"] += 0.05
+        p["life"] -= 1
+
+        if p["life"] <= 0:
+            canvas.delete(p["id"])
+            particles.remove(p)
+
+    # Only create particles if spawning is still allowed
+    if spawn_particles:
+        for _ in range(3):
+            create_particle()
+
+    root.after(30, update_particles)
+
+
+
+# Stop creating particles after 5 seconds
+root.after(5000, stop_spawning)
+
+update_particles()
 root.mainloop()
-
-
-
-
-
-
