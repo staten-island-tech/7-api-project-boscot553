@@ -1,100 +1,78 @@
 import tkinter as tk
-import random
+from tkinter import simpledialog
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
-# Window setup
-WIDTH = 500
-HEIGHT = 500
-SPEED = 100  # lower = faster
-SPACE = 20   # size of each square
-SNAKE_COLOR = "green"
-FOOD_COLOR = "red"
-BG_COLOR = "black"
-
-
-class SnakeGame:
+# --- Functionality ---
+class GraphingCalculator:
     def __init__(self, root):
         self.root = root
-        self.root.title("Snake Game")
+        self.root.title("Mini Desmos")
+        
+        # Entry for functions
+        self.entry_label = tk.Label(root, text="Enter functions (comma separated, e.g., x, x**2, np.sin(a*x))")
+        self.entry_label.pack()
+        self.entry = tk.Entry(root, width=50)
+        self.entry.pack()
 
-        self.canvas = tk.Canvas(root, bg=BG_COLOR, width=WIDTH, height=HEIGHT)
-        self.canvas.pack()
+        # Button to plot
+        self.plot_button = tk.Button(root, text="Plot", command=self.plot_functions)
+        self.plot_button.pack()
+        
+        # Parameter slider button
+        self.slider_button = tk.Button(root, text="Add Parameter", command=self.add_slider)
+        self.slider_button.pack()
+        
+        # Matplotlib figure
+        self.fig, self.ax = plt.subplots()
+        self.canvas = FigureCanvasTkAgg(self.fig, master=root)
+        self.canvas.get_tk_widget().pack()
+        
+        self.parameters = {}  # Store sliders
 
-        self.direction = "Right"
+    def plot_functions(self):
+        funcs = self.entry.get().split(',')
+        x = np.linspace(-10, 10, 500)
+        self.ax.clear()
+        
+        # Make local dictionary for parameters
+        local_dict = {'x': x, 'np': np}
+        local_dict.update(self.parameters)
+        
+        for func_str in funcs:
+            try:
+                y = eval(func_str.strip(), {}, local_dict)
+                self.ax.plot(x, y, label=func_str.strip())
+            except Exception as e:
+                print(f"Error in function '{func_str}': {e}")
+        
+        self.ax.set_xlabel("x")
+        self.ax.set_ylabel("f(x)")
+        self.ax.legend()
+        self.ax.grid(True)
+        self.canvas.draw()
 
-        self.snake = [(100, 100), (80, 100), (60, 100)]  # starting body
-        self.food = None
+    def add_slider(self):
+        # Ask user for parameter name and default value
+        param_name = simpledialog.askstring("Parameter", "Enter parameter name (e.g., a, b):")
+        default_value = simpledialog.askfloat("Default Value", f"Enter default value for {param_name}:")
+        
+        if param_name:
+            self.parameters[param_name] = default_value
+            
+            # Slider widget
+            slider = tk.Scale(self.root, from_=-10, to=10, resolution=0.1,
+                              orient=tk.HORIZONTAL, label=param_name,
+                              command=lambda val, p=param_name: self.update_parameter(p, val))
+            slider.set(default_value)
+            slider.pack()
+    
+    def update_parameter(self, param, val):
+        self.parameters[param] = float(val)
+        self.plot_functions()
 
-        self.draw_snake()
-        self.spawn_food()
-
-        self.root.bind("<KeyPress>", self.change_direction)
-        self.move_snake()
-
-    def draw_snake(self):
-        self.canvas.delete("snake")
-        for x, y in self.snake:
-            self.canvas.create_rectangle(x, y, x + SPACE, y + SPACE, fill=SNAKE_COLOR, tag="snake")
-
-    def spawn_food(self):
-        x = random.randint(0, (WIDTH - SPACE) // SPACE) * SPACE
-        y = random.randint(0, (HEIGHT - SPACE) // SPACE) * SPACE
-        self.food = (x, y)
-        self.canvas.delete("food")
-        self.canvas.create_oval(x, y, x + SPACE, y + SPACE, fill=FOOD_COLOR, tag="food")
-
-    def change_direction(self, event):
-        key = event.keysym
-        if key == "Up" and self.direction != "Down":
-            self.direction = "Up"
-        elif key == "Down" and self.direction != "Up":
-            self.direction = "Down"
-        elif key == "Left" and self.direction != "Right":
-            self.direction = "Left"
-        elif key == "Right" and self.direction != "Left":
-            self.direction = "Right"
-
-    def move_snake(self):
-        head_x, head_y = self.snake[0]
-
-        if self.direction == "Up":
-            head_y -= SPACE
-        elif self.direction == "Down":
-            head_y += SPACE
-        elif self.direction == "Left":
-            head_x -= SPACE
-        elif self.direction == "Right":
-            head_x += SPACE
-
-        new_head = (head_x, head_y)
-
-        # Check collisions with walls
-        if (
-            head_x < 0 or head_x >= WIDTH or
-            head_y < 0 or head_y >= HEIGHT or
-            new_head in self.snake
-        ):
-            self.game_over()
-            return
-
-        self.snake.insert(0, new_head)
-
-        # Check if food eaten
-        if new_head == self.food:
-            self.spawn_food()
-        else:
-            self.snake.pop()
-
-        self.draw_snake()
-        self.root.after(SPEED, self.move_snake)
-
-    def game_over(self):
-        self.canvas.create_text(
-            WIDTH // 2, HEIGHT // 2,
-            text="GAME OVER",
-            fill="white",
-            font=("Arial", 30)
-        )
-
+# --- Run App ---
 root = tk.Tk()
-game = SnakeGame(root)
+app = GraphingCalculator(root)
 root.mainloop()
