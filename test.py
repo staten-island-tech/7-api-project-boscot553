@@ -1,78 +1,77 @@
-import tkinter as tk
-from tkinter import simpledialog
-import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
-# --- Functionality ---
-class GraphingCalculator:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("Mini Desmos")
-        
-        # Entry for functions
-        self.entry_label = tk.Label(root, text="Enter functions (comma separated, e.g., x, x**2, np.sin(a*x))")
-        self.entry_label.pack()
-        self.entry = tk.Entry(root, width=50)
-        self.entry.pack()
+class ChessBoard:
+    def __init__(self):
+        # Initialize the board with pieces in their starting positions
+        self.board = [
+            ["r", "n", "b", "q", "k", "b", "n", "r"],  # Black pieces
+            ["p", "p", "p", "p", "p", "p", "p", "p"],  # Black pawns
+            [" ", " ", " ", " ", " ", " ", " ", " "],  # Empty row
+            [" ", " ", " ", " ", " ", " ", " ", " "],  # Empty row
+            [" ", " ", " ", " ", " ", " ", " ", " "],  # Empty row
+            [" ", " ", " ", " ", " ", " ", " ", " "],  # Empty row
+            ["P", "P", "P", "P", "P", "P", "P", "P"],  # White pawns
+            ["R", "N", "B", "Q", "K", "B", "N", "R"],  # White pieces
+        ]
+        self.turn = "white"  # White always goes first
 
-        # Button to plot
-        self.plot_button = tk.Button(root, text="Plot", command=self.plot_functions)
-        self.plot_button.pack()
-        
-        # Parameter slider button
-        self.slider_button = tk.Button(root, text="Add Parameter", command=self.add_slider)
-        self.slider_button.pack()
-        
-        # Matplotlib figure
-        self.fig, self.ax = plt.subplots()
-        self.canvas = FigureCanvasTkAgg(self.fig, master=root)
-        self.canvas.get_tk_widget().pack()
-        
-        self.parameters = {}  # Store sliders
+    def print_board(self):
+        # Print the board
+        for row in self.board:
+            print(" ".join(row))
 
-    def plot_functions(self):
-        funcs = self.entry.get().split(',')
-        x = np.linspace(-10, 10, 500)
-        self.ax.clear()
-        
-        # Make local dictionary for parameters
-        local_dict = {'x': x, 'np': np}
-        local_dict.update(self.parameters)
-        
-        for func_str in funcs:
-            try:
-                y = eval(func_str.strip(), {}, local_dict)
-                self.ax.plot(x, y, label=func_str.strip())
-            except Exception as e:
-                print(f"Error in function '{func_str}': {e}")
-        
-        self.ax.set_xlabel("x")
-        self.ax.set_ylabel("f(x)")
-        self.ax.legend()
-        self.ax.grid(True)
-        self.canvas.draw()
+    def is_valid_move(self, start, end):
+        # Check if the move is within the board and follows the basic rules for pieces
+        start_row, start_col = start
+        end_row, end_col = end
 
-    def add_slider(self):
-        # Ask user for parameter name and default value
-        param_name = simpledialog.askstring("Parameter", "Enter parameter name (e.g., a, b):")
-        default_value = simpledialog.askfloat("Default Value", f"Enter default value for {param_name}:")
-        
-        if param_name:
-            self.parameters[param_name] = default_value
-            
-            # Slider widget
-            slider = tk.Scale(self.root, from_=-10, to=10, resolution=0.1,
-                              orient=tk.HORIZONTAL, label=param_name,
-                              command=lambda val, p=param_name: self.update_parameter(p, val))
-            slider.set(default_value)
-            slider.pack()
-    
-    def update_parameter(self, param, val):
-        self.parameters[param] = float(val)
-        self.plot_functions()
+        # Ensure both start and end positions are valid
+        if not (0 <= start_row < 8 and 0 <= start_col < 8 and 0 <= end_row < 8 and 0 <= end_col < 8):
+            return False
 
-# --- Run App ---
-root = tk.Tk()
-app = GraphingCalculator(root)
-root.mainloop()
+        start_piece = self.board[start_row][start_col]
+        end_piece = self.board[end_row][end_col]
+
+        # Check if the piece belongs to the correct player
+        if (self.turn == "white" and start_piece.islower()) or (self.turn == "black" and start_piece.isupper()):
+            return False  # Can't move opponent's pieces
+
+        # Check if the destination is not occupied by the same color
+        if (self.turn == "white" and end_piece.isupper()) or (self.turn == "black" and end_piece.islower()):
+            return False
+
+        # Simplified piece movement rules (only moving without checking exact legal moves)
+        # You can expand these rules with specific piece movement logic.
+        return True
+
+    def move_piece(self, start, end):
+        start_row, start_col = start
+        end_row, end_col = end
+
+        if self.is_valid_move(start, end):
+            # Move the piece on the board
+            self.board[end_row][end_col] = self.board[start_row][start_col]
+            self.board[start_row][start_col] = " "
+            # Switch turn
+            self.turn = "black" if self.turn == "white" else "white"
+        else:
+            print("Invalid move!")
+
+# Game loop
+def play_game():
+    chess = ChessBoard()
+    chess.print_board()
+
+    while True:
+        print(f"\n{chess.turn.capitalize()}'s turn:")
+        start_pos = input("Enter the start position (e.g. e2): ").lower()
+        end_pos = input("Enter the end position (e.g. e4): ").lower()
+
+        # Convert positions from chess notation to board coordinates
+        start_row, start_col = 8 - int(start_pos[1]), ord(start_pos[0]) - ord('a')
+        end_row, end_col = 8 - int(end_pos[1]), ord(end_pos[0]) - ord('a')
+
+        chess.move_piece((start_row, start_col), (end_row, end_col))
+        chess.print_board()
+
+# Start the game
+play_game()
